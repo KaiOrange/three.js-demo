@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="../node_modules/dat.gui/build/dat.gui.css"></link>
+  <style>
+    *{
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  我叫<span id="nameSpan"></span>
+  <script type="text/javascript" src="../node_modules/dat.gui/build/dat.gui.min.js"></script>
+  <script type="text/javascript">
+    var gui = new dat.GUI({
+      name: '测试GUI',
+      useLocalStorage: false, // 使用LocalStorage来存储
+      closeOnTop: false// 关闭按钮是否在顶部
+    });
+
+    var obj = {
+      name: 'Orange',
+      age: 18,
+      money: 100,
+      isStudent: true,
+      hobby1:'篮球',
+      hobby2:'Run',
+      color1: '#FF0000', // CSS string
+      color2: [ 0, 128, 255 ], // RGB array
+      color3: [ 0, 128, 255, 0.3 ], // RGB with alpha
+      color4: { h: 350, s: 0.9, v: 0.3 }, // Hue, saturation, value
+      num: 0,
+      // 请允许我这里写汉字
+      打印: function (){
+        this.num++;// 非GUI改变变量 需要listen
+        console.log(this)
+      }
+    };
+
+    
+    var folder1 = gui.addFolder('基本信息');
+    folder1.open(); // 打开第一个文件夹
+    // 首先赋值一次
+    var $nameSpan = document.getElementById('nameSpan');
+    $nameSpan.innerText = obj.name;
+    // 监听到name的变化 则写入DOM
+    folder1.add(obj, 'name').onChange(function (val){
+      $nameSpan.innerText = val;
+    })
+    folder1.add(obj, 'age', 0, 100,1);// 0~100每次增加或者减少1
+    folder1.add(obj, 'money',0,1000);// 0~1000
+    folder1.add(obj, 'isStudent');// 如果值是boolean类型的那么就会当做复选框
+    folder1.add(obj, 'hobby1',['篮球','游泳','跑步']);// 如果第三个值是数组或者对象那么会渲染成选项框
+    folder1.add(obj, 'hobby2',{'篮球':'Basketball','游泳':'Swimming','跑步':'Run'});// 如果第三个值是数组或者对象那么会渲染成选项框
+   
+
+    var folder2 = gui.addFolder('颜色');
+    folder2.addColor(obj, 'color1');
+    folder2.addColor(obj, 'color2');
+    folder2.addColor(obj, 'color3');
+    folder2.addColor(obj, 'color4');
+
+    // 添加到gui上
+    gui.add(obj, '打印');// 如果是函数的话 那么就会当做按钮
+    // 注意这里的num是在 打印 函数中改变的 而不是手动修改GUI的 这种非GUI改变的时候需要监听 那么需要调用.listen()方法
+    gui.add(obj, 'num').listen();
+
+    document.body.appendChild(gui.domElement);
+  </script>
+</body>
+</html>

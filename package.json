@@ -15,6 +15,8 @@
     "anywhere": "^1.5.0"
   },
   "dependencies": {
+    "dat.gui": "^0.7.6",
+    "stats.js": "^0.17.0",
     "three": "^0.111.0"
   }
 }

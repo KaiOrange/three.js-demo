@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    *{
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <script type="text/javascript" src="../node_modules/three/build/three.js"></script>
+  <script type="text/javascript" src="../node_modules/stats.js/build/stats.min.js"></script>
+  <script type="text/javascript">
+    var camera, scene, renderer;
+    var geometry, material, mesh;
+    var stats = new Stats();
+
+    function init() {
+      camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 10 );
+      camera.position.z = 1;
+
+      scene = new THREE.Scene();
+
+      geometry = new THREE.BoxGeometry( 0.2, 0.2, 0.2 );
+      material = new THREE.MeshNormalMaterial();
+      mesh = new THREE.Mesh( geometry, material );
+      scene.add( mesh );
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize( window.innerWidth, window.innerHeight );
+      document.body.appendChild( renderer.domElement );
+
+      stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+      document.body.appendChild( stats.dom );
+    }
+
+    function animate() {
+      stats.update();
+      
+      requestAnimationFrame( animate );
+      mesh.rotation.x += 0.01;
+      mesh.rotation.y += 0.02;
+      renderer.render( scene, camera );
+    }
+
+    init();
+    animate();
+  </script>
+</body>
+</html>
