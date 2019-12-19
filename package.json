@@ -1,0 +1,20 @@
+{
+  "name": "three.js-demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "anywhere"
+  },
+  "keywords": [
+    "three.js"
+  ],
+  "author": "Orange",
+  "license": "ISC",
+  "devDependencies": {
+    "anywhere": "^1.5.0"
+  },
+  "dependencies": {
+    "three": "^0.111.0"
+  }
+}
