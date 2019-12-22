@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="../node_modules/dat.gui/build/dat.gui.css"></link>
+  <style>
+    *{
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <script type="text/javascript" src="../node_modules/three/build/three.js"></script>
+  <script type="text/javascript" src="../node_modules/stats.js/build/stats.min.js"></script>
+  <script type="text/javascript" src="../node_modules/dat.gui/build/dat.gui.min.js"></script>
+  <script type="text/javascript">
+    var camera, scene, renderer;
+    var geometry, material, mesh;
+    var stats = new Stats();
+    var gui = new dat.GUI();
+    var obj = {
+      x : 0,
+      y : 0,
+      z : 0,
+      rotateX : 0,
+      rotateY : 0,
+      rotateZ : 0
+    };
+
+    function init() {
+      camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.01, 10 );
+      camera.position.z = 5;
+
+      scene = new THREE.Scene();
+       // 方法1：scene.background
+      scene.background = new THREE.Color('orange');
+
+      geometry = new THREE.BoxGeometry( 0.2, 0.2, 0.2 );
+      material = new THREE.MeshNormalMaterial();
+      mesh = new THREE.Mesh( geometry, material );
+      scene.add( mesh );
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize( window.innerWidth, window.innerHeight );
+      // 方法2：renderer.setClearColor()
+      // renderer.setClearColor(new THREE.Color(0xff0000));
+      document.body.appendChild( renderer.domElement );
+
+      stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+      document.body.appendChild( stats.dom );
+
+      gui.add(obj, 'x', -3, 3);
+      gui.add(obj, 'y', -3, 3);
+      gui.add(obj, 'z', -3, 3);
+      gui.add(obj, 'rotateX', 0, 360);
+      gui.add(obj, 'rotateY', 0, 360);
+      gui.add(obj, 'rotateZ', 0, 360);
+    }
+
+    function animate() {
+      stats.update();
+      
+      requestAnimationFrame( animate );
+      mesh.position.x = obj.x;
+      mesh.position.y = obj.y;
+      mesh.position.z = obj.z;
+      // 需要把角度修改为弧度
+      mesh.rotation.x = obj.rotateX / 180 * Math.PI;
+      mesh.rotation.y = obj.rotateY / 180 * Math.PI;
+      mesh.rotation.z = obj.rotateZ / 180 * Math.PI;
+      renderer.render( scene, camera );
+    }
+
+    init();
+    animate();
+  </script>
+</body>
+</html>
