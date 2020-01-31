@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="../node_modules/dat.gui/build/dat.gui.css"></link>
+  <style>
+    *{
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <script type="text/javascript" src="../node_modules/three/build/three.js"></script>
+  <script type="text/javascript" src="../node_modules/stats.js/build/stats.min.js"></script>
+  <script type="text/javascript" src="../node_modules/dat.gui/build/dat.gui.min.js"></script>
+  <script type="text/javascript">
+    var camera, scene, renderer;
+    var geometry, material, mesh;
+    var stats = new Stats();
+    var gui = new dat.GUI();
+    var obj = {
+      color :'#ffffff', // 颜色
+      intensity :1, // 强度
+      y: 10, // 平行光 y修改对光线并不影响
+      visibleDirectional:true,
+      skyColor: '#87ceeb',
+      groundColor: '#f5deb3',
+      hemisphereIntensity: 0.4,
+      visibleHemisphere: true,
+    };
+
+
+    function init() {
+      camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.01, 100 );
+      scene = new THREE.Scene();
+
+      // 添加光源
+      var directionalLight = new THREE.DirectionalLight(obj.color,obj.intensity);
+      directionalLight.position.set(0, obj.y, 0);
+      directionalLight.castShadow = true;
+      directionalLight.shadow.mapSize.width = 512;  // default
+      directionalLight.shadow.mapSize.height = 512; // default
+      directionalLight.shadow.camera.near = 0.5;    
+      directionalLight.shadow.camera.far = 1000;     
+      directionalLight.shadow.camera.left = -15;
+      directionalLight.shadow.camera.right = 15;
+      directionalLight.shadow.camera.top = 15;
+      directionalLight.shadow.camera.bottom = -15;
+      scene.add(directionalLight);
+
+      // 添加HemisphereLight
+      var hemisphereLight = new THREE.HemisphereLight(obj.skyColor, obj.groundColor, obj.hemisphereIntensity);
+      scene.add(hemisphereLight);
+      
+      // 添加正方体
+      var cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
+      var cubeMaterial = new THREE.MeshLambertMaterial({color: 0xff0000});
+      var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+      // 正方体位置
+      cube.position.x = -6;
+      cube.position.y = -6;
+      cube.position.z = 0;
+      cube.castShadow = true;
+      // 把正方体添加到场景中
+      scene.add(cube);
+
+       // 添加小球
+      var sphereGeometry = new THREE.SphereGeometry(2, 20, 20);
+      var sphereMaterial = new THREE.MeshLambertMaterial({color: 0x00ff00});
+      var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+      // 小球位置
+      sphere.position.x = 6;
+      sphere.position.y = -6;
+      sphere.position.z = 0;
+      sphere.castShadow = true;
+      // 把小球添加到场景中
+      scene.add(sphere);
+
+      // 添加一片平地
+      var planeGeometry = new THREE.PlaneGeometry(30, 30, 100, 100);
+      var planeMaterial = new THREE.MeshLambertMaterial({color: 0xdddddd});
+      // var planeMaterial = new THREE.MeshLambertMaterial({color: 0xff0000});
+      var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+      // 由于平地添加后默认是在正前方 所以需要旋转一下
+      plane.rotation.x = -0.5 * Math.PI;
+      plane.position.y = -10;
+      plane.receiveShadow = true;
+      scene.add(plane);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize( window.innerWidth, window.innerHeight );
+      renderer.shadowMapEnabled = true;
+      document.body.appendChild( renderer.domElement );
+
+      stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+      document.body.appendChild( stats.dom );    
+
+      gui.addColor(obj, 'color').onChange(function (val){
+        directionalLight.color = new THREE.Color(val);
+      });
+      gui.add(obj, 'intensity', 0, 2).onChange(function (val){
+        directionalLight.intensity = val;
+      });
+      gui.add(obj, 'y', 0, 20).onChange(function (val){
+        directionalLight.position.set(0, val, 0);
+      });
+      gui.add(obj, 'visibleDirectional').onChange(function (val){
+        directionalLight.visible = val;
+      });
+      gui.addColor(obj, 'skyColor').onChange(function (val){
+        hemisphereLight.color = new THREE.Color(val);
+      });
+      gui.addColor(obj, 'groundColor').onChange(function (val){
+        hemisphereLight.groundColor = new THREE.Color(val);
+      });
+      gui.add(obj, 'hemisphereIntensity', 0, 2).onChange(function (val){
+        hemisphereLight.intensity = val;
+      });
+      gui.add(obj, 'visibleHemisphere').onChange(function (val){
+        hemisphereLight.visible = val;
+      });
+
+      // 光照指向平地
+      directionalLight.target = plane;
+      camera.position.x = 0;
+      camera.position.y = 2;
+      camera.position.z = 50;
+      // 看向场景
+      camera.lookAt(scene.position);
+      
+    }
+
+    function animate() {
+      stats.update();
+      
+      requestAnimationFrame( animate );
+      
+      renderer.render( scene, camera );
+    }
+
+    init();
+    animate();
+  </script>
+</body>
+</html>
