@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="../node_modules/dat.gui/build/dat.gui.css"></link>
+  <style>
+    *{
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <script type="text/javascript" src="../node_modules/three/build/three.js"></script>
+  <script type="text/javascript" src="../node_modules/stats.js/build/stats.min.js"></script>
+  <script type="text/javascript" src="../node_modules/dat.gui/build/dat.gui.min.js"></script>
+  <script type="text/javascript">
+    var camera, scene, renderer;
+    var geometry, material, mesh;
+    var step = 0;
+    var stats = new Stats();
+    var gui = new dat.GUI();
+    var obj = {
+      radius: 10,
+      widthSegments:8,
+      heightSegments: 8, 
+      phiStart: 0, 
+      phiLength: 2 * Math.PI, 
+      thetaStart: 0, 
+      thetaLength: Math.PI,
+      getGeometry (){
+        return new THREE.SphereGeometry(
+            this.radius, 
+            Math.round(this.widthSegments), 
+            Math.round(this.heightSegments),
+            this.phiStart, 
+            this.phiLength, 
+            this.thetaStart, 
+            this.thetaLength, 
+          );
+      },
+      update () {
+        if (mesh) {
+          // 先删除
+          scene.remove(mesh);
+          // 后创建一个新的
+          mesh = createMesh(this.getGeometry());
+          // 再添加到场景中
+          scene.add(mesh);
+        }
+      },
+    };
+
+    function createMesh(geometry) {
+      var material = new THREE.MeshBasicMaterial({ 
+        color:'#ff0000'
+      });
+      material.wireframe = true;
+      var mesh = new THREE.Mesh(geometry, material);
+      return mesh;
+    }
+
+
+    function init() {
+      camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.01, 100 );
+      scene = new THREE.Scene();
+      
+      // 添加一片平地
+      mesh = createMesh(obj.getGeometry());
+      scene.add(mesh);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize( window.innerWidth, window.innerHeight );
+      document.body.appendChild( renderer.domElement );
+
+      stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+      document.body.appendChild( stats.dom );  
+
+      gui.add(obj, 'radius', 0, 20).onChange(function () {
+        obj.update();
+      });
+      gui.add(obj, 'widthSegments', 0, 20).onChange(function () {
+        obj.update();
+      }); 
+      gui.add(obj, 'heightSegments', 0, 20).onChange(function () {
+        obj.update();
+      }); 
+      gui.add(obj, 'phiStart', 0, 2 * Math.PI).onChange(function () {
+        obj.update();
+      });    
+      gui.add(obj, 'phiLength', 0, 2 * Math.PI).onChange(function () {
+        obj.update();
+      });    
+      gui.add(obj, 'thetaStart', 0, 2 * Math.PI).onChange(function () {
+        obj.update();
+      });     
+      gui.add(obj, 'thetaLength', 0, 2 * Math.PI).onChange(function () {
+        obj.update();
+      });     
+
+      camera.position.x = 0;
+      camera.position.y = 2;
+      camera.position.z = 50;
+      // 看向场景
+      camera.lookAt(scene.position);
+      
+    }
+
+    function animate() {
+      stats.update();
+
+      // 添加了一行控制旋转的代码
+      mesh.rotation.y = step += 0.01;
+
+      requestAnimationFrame( animate );
+      
+      renderer.render( scene, camera );
+    }
+
+    init();
+    animate();
+  </script>
+</body>
+</html>
