@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="../node_modules/dat.gui/build/dat.gui.css"></link>
+  <style>
+    *{
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <script type="text/javascript" src="../node_modules/three/build/three.js"></script>
+  <script type="text/javascript" src="../node_modules/stats.js/build/stats.min.js"></script>
+  <script type="text/javascript" src="../node_modules/dat.gui/build/dat.gui.min.js"></script>
+  <script type="text/javascript">
+    var camera, scene, renderer;
+    var geometry, material, mesh;
+    var stats = new Stats();
+    var gui = new dat.GUI();
+    var obj = {
+      color: '#ffffff',
+    };
+
+
+    function init() {
+      camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.01, 100 );
+      scene = new THREE.Scene();
+      
+      var geometry = new THREE.Geometry();
+      geometry.vertices.push(new THREE.Vector3(0, 0, 0));
+      for (let i = 1; i < 10; i++) {
+        geometry.vertices.push(new THREE.Vector3(i, i - 1, 0));
+        geometry.vertices.push(new THREE.Vector3(i, -i , 0));
+        geometry.vertices.push(new THREE.Vector3(-i, -i, 0));
+        geometry.vertices.push(new THREE.Vector3(-i, i, 0));
+      }
+      var material = new THREE.LineBasicMaterial({
+        color: obj.color,
+      });
+      var line = new THREE.Line(geometry, material);
+      scene.add(line);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize( window.innerWidth, window.innerHeight );
+      document.body.appendChild( renderer.domElement );
+
+      stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+      document.body.appendChild( stats.dom );    
+
+      gui.addColor(obj, 'color').onChange(function (val){
+        material.color = new THREE.Color(val);
+      });
+
+      camera.position.x = 0;
+      camera.position.y = 2;
+      camera.position.z = 50;
+      // 看向场景
+      camera.lookAt(scene.position);
+      
+    }
+
+    function animate() {
+      stats.update();
+      
+      requestAnimationFrame( animate );
+      
+      renderer.render( scene, camera );
+    }
+
+    init();
+    animate();
+  </script>
+</body>
+</html>

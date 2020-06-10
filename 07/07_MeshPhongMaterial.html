@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="../node_modules/dat.gui/build/dat.gui.css"></link>
+  <style>
+    *{
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <script type="text/javascript" src="../node_modules/three/build/three.js"></script>
+  <script type="text/javascript" src="../node_modules/stats.js/build/stats.min.js"></script>
+  <script type="text/javascript" src="../node_modules/dat.gui/build/dat.gui.min.js"></script>
+  <script type="text/javascript">
+    var camera, scene, renderer;
+    var geometry, material, mesh;
+    var stats = new Stats();
+    var gui = new dat.GUI();
+    var obj = {
+      color :'#ffffff', // 颜色
+      intensity :1, // 强度
+      distance :0, // 距离
+      angle : Math.PI/4, // 角度
+      penumbra : 0, // 投影
+      decay :1 // 衰退度
+    };
+
+
+    function init() {
+      camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.01, 100 );
+      scene = new THREE.Scene();
+
+      // 添加光源
+      var spotLight = new THREE.SpotLight(obj.color, obj.intensity, obj.distance, obj.angle, obj.penumbra, obj.decay);
+      spotLight.position.set(0, 10, 0);
+      spotLight.castShadow = true;
+      scene.add(spotLight);
+      
+      // 添加正方体
+      var cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
+      var cubeMaterial = new THREE.MeshPhongMaterial({color: 0xff0000});
+      var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+      // 正方体位置
+      cube.position.x = -6;
+      cube.position.y = -6;
+      cube.position.z = 0;
+      cube.castShadow = true;
+      // 把正方体添加到场景中
+      scene.add(cube);
+
+      // 添加小球
+      var sphereGeometry = new THREE.SphereGeometry(2, 20, 20);
+      var sphereMaterial = new THREE.MeshPhongMaterial({color: 0x00ff00});
+      var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+      // 小球位置
+      sphere.position.x = 6;
+      sphere.position.y = -6;
+      sphere.position.z = 0;
+      sphere.castShadow = true;
+      // 把小球添加到场景中
+      scene.add(sphere);
+
+      // 添加一片平地
+      var planeGeometry = new THREE.PlaneGeometry(30, 30, 100, 100);
+      var planeMaterial = new THREE.MeshPhongMaterial({color: 0xdddddd});
+      var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+      // 由于平地添加后默认是在正前方 所以需要旋转一下
+      plane.rotation.x = -0.5 * Math.PI;
+      plane.position.y = -10;
+      plane.receiveShadow = true;
+      scene.add(plane);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize( window.innerWidth, window.innerHeight );
+      renderer.shadowMapEnabled = true;
+      document.body.appendChild( renderer.domElement );
+
+      stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+      document.body.appendChild( stats.dom );    
+
+      gui.addColor(obj, 'color').onChange(function (val){
+        spotLight.color = new THREE.Color(val);
+      });
+      gui.add(obj, 'intensity', 0, 2).onChange(function (val){
+        spotLight.intensity = val;
+      }); 
+      gui.add(obj, 'distance', 0, 200).onChange(function (val){
+        spotLight.distance = val;
+      }); 
+      gui.add(obj, 'angle', 0, Math.PI/2).onChange(function (val){
+        spotLight.angle = val;
+      }); 
+      gui.add(obj, 'penumbra', 0, 1).onChange(function (val){
+        spotLight.penumbra = val;
+      }); 
+      gui.add(obj, 'decay', 1, 2).onChange(function (val){
+        spotLight.decay = val;
+      }); 
+
+      camera.position.x = 0;
+      camera.position.y = 2;
+      camera.position.z = 50;
+      // 看向场景
+      camera.lookAt(scene.position);
+      
+    }
+
+    function animate() {
+      stats.update();
+      
+      requestAnimationFrame( animate );
+      
+      renderer.render( scene, camera );
+    }
+
+    init();
+    animate();
+  </script>
+</body>
+</html>
